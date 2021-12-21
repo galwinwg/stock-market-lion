@@ -1,0 +1,135 @@
+package Stocks;
+
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Scanner;
+
+
+public class StockMarketScanner {
+
+
+		public static void main(String[] args) {
+			//My API
+			//https://api.polygon.io/v2/aggs/ticker/{stocksTicker}/prev
+			//APPLE EXAMPLE
+			//https://api.polygon.io/v2/aggs/ticker/AAPL/prev?adjusted=true&apiKey=_p_vlew9m0Yr9CCfcqAV_hYvnbpg83vt
+			Scanner scanner1 = new Scanner(System.in);
+		 	
+		 	System.out.print("What Stock would you like to know the high of the day for? ");
+		 	String answer = scanner1.next();
+		 	
+		 	scanner1.close();
+			
+			DailyHigh(answer);
+			StockNews(answer);
+		
+			
+		}
+		
+		public static void DailyHigh(String answer) {
+			
+			try {
+				 
+	            URL url = new URL("https://api.polygon.io/v2/aggs/ticker/" + answer + "/prev?adjusted=true&apiKey=_p_vlew9m0Yr9CCfcqAV_hYvnbpg83vt");
+
+	            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	            conn.setRequestMethod("GET");
+	            conn.connect();
+
+	            //Check if connect is made
+	            int responseCode = conn.getResponseCode();
+
+	            // 200 OK
+	            if (responseCode != 200) {
+	                throw new RuntimeException("HttpResponseCode: " + responseCode);
+	            } else {
+
+	                StringBuilder informationString = new StringBuilder();
+	                Scanner scanner = new Scanner(url.openStream());
+
+	                while (scanner.hasNext()) {
+	                    informationString.append(scanner.nextLine());
+	                }
+	                //Close the scanner
+	                scanner.close();
+
+	                //System.out.println(informationString);
+	                
+	                int highStartingPos = informationString.indexOf("h");
+	                String tickerHigh = informationString.substring(highStartingPos + 3, highStartingPos + 9);
+	                
+	                System.out.println("Ticker: " + answer + ", Daily High: " + tickerHigh);
+
+
+					/*
+					 * //JSON simple library Setup with Maven is used to convert strings to JSON
+					 * JSONParser parse = new JSONParser(); JSONArray dataObject = (JSONArray)
+					 * parse.parse(String.valueOf(informationString));
+					 * 
+					 * //Get the first JSON object in the JSON array
+					 * System.out.println(dataObject.get(0));
+					 * 
+					 * JSONObject countryData = (JSONObject) dataObject.get(0);
+					 * 
+					 * System.out.println(countryData.get("h"));
+					 */
+
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+		
+			
+		}
+		
+		public static void StockNews(String answer) {
+			
+			try {
+				 
+	            URL url = new URL("https://api.polygon.io/v2/reference/news?ticker=" + answer + "&apiKey=_p_vlew9m0Yr9CCfcqAV_hYvnbpg83vt");
+
+	            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	            conn.setRequestMethod("GET");
+	            conn.connect();
+
+	            //Check if connect is made
+	            int responseCode = conn.getResponseCode();
+
+	            // 200 OK
+	            if (responseCode != 200) {
+	                throw new RuntimeException("HttpResponseCode: " + responseCode);
+	            } else {
+
+	                StringBuilder informationString = new StringBuilder();
+	                Scanner scanner = new Scanner(url.openStream());
+
+	                while (scanner.hasNext()) {
+	                    informationString.append(scanner.nextLine());
+	                }
+	                //Close the scanner
+	                scanner.close();
+
+	                //System.out.println(informationString);
+	                
+	                int articalInfoStartingPos = informationString.indexOf("article_url");
+	                String newSubString = informationString.substring(articalInfoStartingPos + 14);	            
+	                String newsHigh = informationString.substring(articalInfoStartingPos + 13, articalInfoStartingPos + 15 + newSubString.indexOf("\""));
+	                
+	                System.out.println("Ticker: " + answer + ", News article: " + newsHigh);
+
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+			
+			
+		}
+		
+		
+
+}
